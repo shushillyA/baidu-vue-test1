@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // Object.defineProperty(obj,prop,descriptor)
+
+    // Object.defineProperty()
+
+    // function Observer(obj) {
+    // for (var k in obj){
+    // this.data[k] = obj[k]
+    // }
+    // }
+
+    // 属性变化 => 触发自定义的回调函数
+
+    function Observer(data) {
+      this.data = data;
+      this.walk(data);  // 调用原型上的walk方法
+    }
+
+    let p = Observer.prototype   // 原型
+
+    p.walk = function (obj) {
+      let val;
+      for (let key in obj) {   // 遍历对象的属性
+        // 如果是原有的就继续 获得原有的属性 而不是原型链上的
+        if (obj.hasOwnProperty(key)) {
+          val = obj[key];
+          if (typeof val === 'object') {
+            new Observer(val);
+          }
+          // this => new出来的对象
+          this.convert(key, val);
+        }
+      }
+    }
+
+    // 原型上的方法
+    p.convert = function (key, val) {
+      Object.defineProperty(this.data, key, { // // this => new出来的对象
+        enumerable: true,
+        configurable: true,
+        get: function () {
+          console.log('你访问了' + key);
+          return val
+        },
+        set: function (newVal) {
+          console.log('你设置了' + key);
+          console.log('新的' + key + '=' + newVal)
+          if (newVal === val) return;
+          val = newVal
+        }
+      })
+    }
+
+
+
+    var app1 = new Observer({ 'name': '123', 'age': 123 })
+  </script>
+</body>
+
+</html>
